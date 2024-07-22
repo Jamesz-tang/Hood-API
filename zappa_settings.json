@@ -1,0 +1,17 @@
+{
+    "staging": {
+        "app_function": "app.app",
+        "aws_region": "us-east-1",
+        "exclude": [
+            "boto3",
+            "dateutil",
+            "botocore",
+            "s3transfer",
+            "concurrent"
+        ],
+        "profile_name": "default",
+        "project_name": "smart-packing",
+        "runtime": "python3.9",
+        "s3_bucket": "zappa-l2odpftnl"
+    }
+}
