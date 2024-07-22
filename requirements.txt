@@ -63,3 +63,5 @@ webencodings==0.5.1
 Werkzeug==3.0.3
 yarg==0.1.9
 zipp==3.19.2
+
+ortools~=9.10.4067
