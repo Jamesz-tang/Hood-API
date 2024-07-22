@@ -9,9 +9,9 @@
             "s3transfer",
             "concurrent"
         ],
-        "profile_name": "default",
+        "profile_name": "ecommerce",
         "project_name": "smart-packing",
         "runtime": "python3.9",
-        "s3_bucket": "zappa-l2odpftnl"
+        "s3_bucket": "zappa-pmeq1m3oc"
     }
 }
