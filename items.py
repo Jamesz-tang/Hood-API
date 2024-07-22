@@ -35,11 +35,11 @@ def optimize_packages(items, pallets):
         for i in assembled_items:
             solver.Add(sum(x[k, j] for k in assembled_items if k != i) == 0)
 
-    # # Bundle item constraints: must be alone in a pallet
-    # for i in range(num_items):
-    #     if items[i]['is_bundle']:
-    #         for j in range(num_pallets):
-    #             solver.Add(sum(x[k, j] for k in range(num_items) if k != i) == 0)
+    # Bundle item constraints: must be alone in a pallet
+    for i in range(num_items):
+        if items[i]['is_bundle']:
+            for j in range(num_pallets):
+                solver.Add(sum(x[k, j] for k in range(num_items) if k != i) <= 1)
 
     # Objective: minimize the number of pallets used (prefer smaller pallets)
     solver.Minimize(solver.Sum(x[i, j] * (j + 1) for i in range(num_items) for j in range(num_pallets)))
@@ -64,7 +64,10 @@ def optimize_packages(items, pallets):
 
 # Example usage
 items = [
-    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 10, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 10, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 10, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 10, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     # {'weight': 5, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': True},
@@ -144,20 +147,7 @@ items = [
 ]
 
 pallets = [
-    {'max_height': 6, 'length': 10, 'width': 5},
-    {'max_height': 6, 'length': 10, 'width': 5},
-    {'max_height': 6, 'length': 10, 'width': 5},
-    {'max_height': 6, 'length': 10, 'width': 5},
-    {'max_height': 10, 'length': 18, 'width': 17},
-    {'max_height': 10, 'length': 18, 'width': 17},
-    {'max_height': 10, 'length': 18, 'width': 17},
-    {'max_height': 10, 'length': 18, 'width': 17},
-    {'max_height': 10, 'length': 101, 'width': 5},
-    {'max_height': 10, 'length': 101, 'width': 5},
-    {'max_height': 10, 'length': 101, 'width': 5},
-    {'max_height': 10, 'length': 101, 'width': 5},
-    {'max_height': 10, 'length': 101, 'width': 5},
-    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 28, 'length': 30, 'width': 15},
     {'max_height': 6, 'length': 10, 'width': 5},
     {'max_height': 6, 'length': 10, 'width': 5},
     {'max_height': 6, 'length': 10, 'width': 5},
@@ -183,6 +173,62 @@ pallets = [
     {'max_height': 10, 'length': 101, 'width': 5},
     {'max_height': 10, 'length': 101, 'width': 5},
     {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
     {'max_height': 6, 'length': 10, 'width': 5},
     {'max_height': 6, 'length': 10, 'width': 5},
     {'max_height': 6, 'length': 10, 'width': 5},
@@ -302,6 +348,49 @@ pallets = [
     {'max_height': 10, 'length': 101, 'width': 5},
     {'max_height': 10, 'length': 101, 'width': 5},
     {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 6, 'length': 10, 'width': 5},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 18, 'width': 17},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+    {'max_height': 10, 'length': 101, 'width': 5},
+
     # Add more pallets as needed
 ]
 

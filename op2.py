@@ -94,12 +94,23 @@ items = [
     {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'assembled': False, 'bundle': False},
     {'weight': 20, 'length': 3, 'width': 3, 'height': 3, 'assembled': True, 'bundle': False},
     {'weight': 15, 'length': 1, 'width': 1, 'height': 1, 'assembled': False, 'bundle': True},
+
+    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'assembled': False, 'bundle': False},
+    {'weight': 20, 'length': 3, 'width': 3, 'height': 3, 'assembled': True, 'bundle': False},
+    {'weight': 15, 'length': 1, 'width': 1, 'height': 1, 'assembled': False, 'bundle': True},
+
     # Add more items
 ]
 
 pallets = [
     {'type': 'small', 'max_height': 10, 'length': 5, 'width': 5},
     {'type': 'large', 'max_height': 15, 'length': 10, 'width': 10},
+    {'type': 'small', 'max_height': 10, 'length': 5, 'width': 5},
+    {'type': 'large', 'max_height': 15, 'length': 10, 'width': 10},
+
+    {'type': 'small', 'max_height': 10, 'length': 5, 'width': 5},
+    {'type': 'large', 'max_height': 15, 'length': 10, 'width': 10},
+
     # Add more pallet types
 ]
 
