@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Sample data to simulate a database
 items = [
@@ -18,13 +20,25 @@ pallets = [
 def ok():
     return 'OK'
 
+
 @app.route('/health', methods=['GET'])
 def get_health():
     return 'healthy'
 
+@app.route('/api/optimal_bin_packages', methods=['POST'])
+def optimal_bin_packages():
+    data = request.json
+    # Add your optimization logic here
+    return jsonify({"message": "Optimization logic to be implemented"})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
 @app.route('/items', methods=['GET'])
 def get_items():
     return jsonify(items)
+
 
 @app.route('/items', methods=['POST'])
 def add_item():
@@ -33,9 +47,11 @@ def add_item():
     items.append(new_item)
     return jsonify(new_item), 201
 
+
 @app.route('/pallets', methods=['GET'])
 def get_pallets():
     return jsonify(pallets)
+
 
 @app.route('/pallets', methods=['POST'])
 def add_pallet():
@@ -43,6 +59,7 @@ def add_pallet():
     new_pallet['id'] = len(pallets) + 1
     pallets.append(new_pallet)
     return jsonify(new_pallet), 201
+
 
 @app.route('/optimal-bin-packages', methods=['POST'])
 def create_optimal_bin_packages():
@@ -55,6 +72,7 @@ def create_optimal_bin_packages():
     optimal_packages = []  # Placeholder for the optimized packaging result
 
     return jsonify(optimal_packages)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

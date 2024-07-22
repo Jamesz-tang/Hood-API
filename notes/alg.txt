@@ -5,4 +5,6 @@ Considering the given list of pallets, each has maximum height, fixed width and 
 be stacked over another assembled item in the same pallet.
 Each bundle item must be in a bundle and cannot have any other items.
 Smaller pallets are preferred but not required.
- use the Bin Packing algorithm with additional constraints to ensure items are packed appropriately.
+
+The solution must provide the actual height of each package/pallet/bin.
+Use the Bin Packing algorithm with additional constraints to ensure items are packed appropriately.
