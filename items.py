@@ -1,6 +1,7 @@
 from ortools.linear_solver import pywraplp
 import json
 
+
 def optimize_packages(items, pallets):
     # Create the solver
     solver = pywraplp.Solver.CreateSolver('SCIP')
@@ -70,21 +71,24 @@ items = [
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
-    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
+    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     # {'weight': 5, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
-    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
+    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     # {'weight': 5, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
     {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
-    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
+    {'weight': 5, 'length': 100, 'width': 4, 'height': 10, 'is_assembled': False, 'is_bundle': True},
+    {'weight': 10, 'length': 2, 'width': 2, 'height': 2, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     {'weight': 5, 'length': 1, 'width': 1, 'height': 5, 'is_assembled': False, 'is_bundle': False},
     # {'weight': 5, 'length': 1, 'width': 1, 'height': 1, 'is_assembled': False, 'is_bundle': True},
