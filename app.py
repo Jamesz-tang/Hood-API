@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 # Sample data to simulate a database
 items = [
@@ -24,10 +23,6 @@ def ok():
 @app.route('/health', methods=['GET'])
 def get_health():
     return 'healthy'
-
-@app.route('/test', methods=['GET'])
-def get_health():
-    return 'test'
 
 @app.route('/api/optimal_bin_packages', methods=['POST'])
 def optimal_bin_packages():
