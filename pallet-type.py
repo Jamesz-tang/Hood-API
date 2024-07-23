@@ -1,4 +1,4 @@
-class Pallet:
+class PalletType:
     def __init__(self):
         self.pallet_dict = {
             "rta": {
@@ -68,7 +68,7 @@ class Pallet:
 
 
 # Example usage
-pallet_type = Pallet()
+pallet_type = PalletType()
 print(pallet_type.get_pallet(False, True, 'BD'))
 print(pallet_type.get_pallet(True, False, 'PLT8'))
 print(pallet_type.get_pallet(True, False, 'PLT5'))
