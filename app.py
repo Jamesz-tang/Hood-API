@@ -1,7 +1,24 @@
+import os
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
+
+
+@app.errorhandler(404)
+# inbuilt function which takes error as parameter
+def not_found(e):
+    # defining function
+    return 'Page Not Found'
+
+
+@app.errorhandler(400)
+# inbuilt function which takes error as parameter
+def not_found(e):
+    # defining function
+    return 'Bad Request'
+
 
 # Sample data to simulate a database
 items = [
@@ -17,18 +34,23 @@ pallets = [
 
 @app.route('/', methods=['GET'])
 def ok():
-    return 'OK'
+    app_name = os.getenv('APP_NAME')
+    # app.logger.info('%s hit', app_name)
+
+    return 'Welcome to ' + app_name
 
 
 @app.route('/health', methods=['GET'])
 def get_health():
     return 'healthy'
 
+
 @app.route('/api/optimal_bin_packages', methods=['POST'])
 def optimal_bin_packages():
     data = request.json
     # Add your optimization logic here
     return jsonify({"message": "Optimization logic to be implemented"})
+
 
 if __name__ == '__main__':
     app.run(debug=True)

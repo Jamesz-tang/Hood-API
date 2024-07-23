@@ -4,3 +4,4 @@ ortools
 flask-cors
 requests
 zappa
+python-dotenv
