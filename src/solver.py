@@ -1,5 +1,6 @@
 from ortools.linear_solver import pywraplp
 
+
 class PackingSolver:
     def __init__(self, items, pallets):
         self.items = items
@@ -30,7 +31,8 @@ class PackingSolver:
                 for i in range(len(self.items)):
                     if not self.items[i].bundled:
                         self.solver.Add(self.x[i, j] == 0)
-            self.solver.Add(sum(self.items[i].height * self.x[i, j] for i in range(len(self.items))) <= pallet.max_height)
+            self.solver.Add(
+                sum(self.items[i].height * self.x[i, j] for i in range(len(self.items))) <= pallet.max_height)
             self.solver.Add(sum(self.items[i].length * self.x[i, j] for i in range(len(self.items))) <= pallet.length)
             self.solver.Add(sum(self.items[i].width * self.x[i, j] for i in range(len(self.items))) <= pallet.width)
 
@@ -41,20 +43,23 @@ class PackingSolver:
         status = self.solver.Solve()
         result = {}
         if status == self.solver.OPTIMAL:
-            result['total_pallets_used'] = sum(self.x[i, j].solution_value() for i in range(len(self.items)) for j in range(len(self.pallets)))
+            total_pallets_used = 0
             result['pallets'] = []
             for j in range(len(self.pallets)):
+                pallet = self.pallets[j]
                 pallet_items = [self.items[i] for i in range(len(self.items)) if self.x[i, j].solution_value() > 0.5]
                 if pallet_items:
+                    total_pallets_used += 1
                     actual_height = sum(item.height for item in pallet_items)
                     total_weight = self.pallets[j].weight + sum(item.weight for item in pallet_items)
                     result['pallets'].append({
-                        'type': self.pallets[j].type,
-                        'dimensions': f"{self.pallets[j].length}x{self.pallets[j].width}x{self.pallets[j].max_height}",
+                        'pallet_type': pallet,
                         'actual_height': actual_height,
                         'total_weight': total_weight,
                         'items': pallet_items
                     })
+                result['total_pallets_used'] = total_pallets_used
+
         else:
             result['error'] = 'No optimal solution found'
         return result

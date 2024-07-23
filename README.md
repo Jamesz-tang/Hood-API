@@ -19,8 +19,8 @@ Each pallet has the following attributes:
 ## Algorithm
 Generate the minimum number of pallets using a linear approach, resulting in a sub-optimal solution.
 ### Constraints
-1. Assembled items cannot be stacked on top of another assembled item in the same pallet.
-2. Each bundled item must be in a separate bundle and cannot share a pallet with other items.
+1. Assembled items must be on the assembled pallet.
+2. Bundled items must be on the Bundle pallet which as one and only one item.
 3. Smaller pallets are preferred but not required.
 4. No constraints on the weight of a pallet.
 
