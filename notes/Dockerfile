@@ -5,13 +5,13 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy the requirements file into the container
-COPY requirements.txt .
+COPY ../requirements.txt .
 
 # Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . .
+COPY .. .
 
 # Use gunicorn as the WSGI server and expose port 8080
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
