@@ -1,40 +1,37 @@
-# from packing_system import PackingSystem
-# import json
-#
-# # Define items and pallets data
-# items_data = [
-#     {'weight': 12, 'length': 2, 'width': 2, 'height': 1, 'assembled': False, 'bundled': False},
-#     {'weight': 10, 'length': 2, 'width': 2, 'height': 1, 'assembled': False, 'bundled': False},
-#     {'weight': 5, 'length': 1, 'width': 1, 'height': 1, 'assembled': False, 'bundled': False},
-#     {'weight': 8, 'length': 1, 'width': 1, 'height': 1, 'assembled': False, 'bundled': False},
-#
-#     {'weight': 18, 'length': 2, 'width': 2, 'height': 2, 'assembled': True, 'bundled': False},
-#     {'weight': 40, 'length': 5, 'width': 5, 'height': 3, 'assembled': True, 'bundled': False},
-#     {'weight': 20, 'length': 2, 'width': 2, 'height': 2, 'assembled': True, 'bundled': False},
-#     {'weight': 30, 'length': 4, 'width': 4, 'height': 2, 'assembled': True, 'bundled': False},
-#
-#     {'weight': 15, 'length': 3, 'width': 3, 'height': 1, 'assembled': False, 'bundled': True},
-#     {'weight': 25, 'length': 3, 'width': 3, 'height': 2, 'assembled': False, 'bundled': True},
-# ]
-#
-# pallets_data = [
-#     {'type': 'BUNDLE', 'length': 10, 'width': 10, 'max_height': 5, 'weight': 50, 'assembled': False},
-#     {'type': 'BUNDLE', 'length': 10, 'width': 10, 'max_height': 5, 'weight': 50, 'assembled': False},
-#
-#     {'type': 'PLT4', 'length': 4, 'width': 4, 'max_height': 5, 'weight': 30, 'assembled': True},
-#     {'type': 'PLT6', 'length': 6, 'width': 6, 'max_height': 5, 'weight': 35, 'assembled': True},
-#     {'type': 'PLT8', 'length': 8, 'width': 8, 'max_height': 5, 'weight': 40, 'assembled': True},
-#
-#     {'type': 'PLT4', 'length': 4, 'width': 4, 'max_height': 5, 'weight': 30, 'assembled': False},
-#     {'type': 'PLT6', 'length': 6, 'width': 6, 'max_height': 5, 'weight': 35, 'assembled': False},
-#     {'type': 'PLT8', 'length': 8, 'width': 8, 'max_height': 5, 'weight': 40, 'assembled': False},
-# ]
-#
-# # Create a packing system and solve the problem
-# packing_system = PackingSystem(items_data, pallets_data)
-# result = packing_system.solve_packing()
-#
-# json_data = json.dumps(result, default=lambda o: o.__dict__, indent=4)
-# print(json_data)
-#
-#
+import json
+from solver import Item, Pallet, PalletOptimizer
+
+# Sample items with SKU
+items = [
+    Item(sku='ITEM001', weight=10, length=10, width=10, height=10, assembled=False, bundled=False),
+    Item(sku='ITEM004', weight=12, length=12, width=12, height=12, assembled=False, bundled=False),
+    Item(sku='ITEM007', weight=20, length=20, width=20, height=20, assembled=False, bundled=False),
+    Item(sku='ITEM010', weight=11, length=11, width=11, height=11, assembled=False, bundled=False),
+
+    Item(sku='ITEM002', weight=5, length=5, width=5, height=5, assembled=True, bundled=False),
+    Item(sku='ITEM005', weight=8, length=8, width=8, height=8, assembled=True, bundled=False),
+    Item(sku='ITEM008', weight=6, length=6, width=6, height=6, assembled=True, bundled=False),
+
+    Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
+    Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
+
+]
+
+# Sample pallets
+pallets = [
+    Pallet(max_volume=5000, length=18, width=18, weight=50, type='PLT4', assembled=False, size=4),
+    Pallet(max_volume=9250, length=25, width=25, weight=60, type='PLT8', assembled=False, size=88),
+
+    Pallet(max_volume=62500, length=25, width=25, weight=60, type='PLT8', assembled=True, size=8),
+
+    Pallet(max_volume=5760, length=96, width=10, weight=70, type='BD', assembled=False, size=6),
+    Pallet(max_volume=5760, length=96, width=10, weight=70, type='BD', assembled=False, size=6),
+
+]
+
+# Example usage
+if __name__ == '__main__':
+    optimizer = PalletOptimizer(items, pallets)
+    result = optimizer.solve()
+    json_data = json.dumps(result, default=lambda o: o.__dict__, indent=2)
+    print(json_data)
