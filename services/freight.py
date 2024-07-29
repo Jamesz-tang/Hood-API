@@ -1,13 +1,18 @@
-import json
-
-from flask import jsonify
-
 from solvers.palletsolver import Item, Pallet, PalletOptimizer
 
 
-def pack():
-    # Sample items with SKU
-    items = [
+def pack(data):
+    items = _create_items(data)
+
+    pallets = _create_pallets(items)
+    optimizer = PalletOptimizer(items, pallets)
+    result = optimizer.solve()
+
+    return result
+
+
+def _create_items(data):
+    return [
         Item(sku='ITEM001', weight=10, length=10, width=10, height=10, assembled=False, bundled=False),
         Item(sku='ITEM004', weight=12, length=12, width=12, height=12, assembled=False, bundled=False),
         Item(sku='ITEM007', weight=20, length=20, width=20, height=20, assembled=False, bundled=False),
@@ -19,11 +24,11 @@ def pack():
 
         Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
         Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
-
     ]
 
-    # Sample pallets
-    pallets = [
+
+def _create_pallets(items):
+    return [
         Pallet(max_volume=5000, length=18, width=18, weight=50, type='PLT4', assembled=False, size=4),
         Pallet(max_volume=9250, length=25, width=25, weight=60, type='PLT8', assembled=False, size=88),
 
@@ -33,8 +38,3 @@ def pack():
         Pallet(max_volume=5760, length=96, width=10, weight=70, type='BD', assembled=False, size=6),
 
     ]
-
-    optimizer = PalletOptimizer(items, pallets)
-    result = optimizer.solve()
-
-    return result
