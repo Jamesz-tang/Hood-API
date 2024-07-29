@@ -1,7 +1,7 @@
-import json
+import math
+from dataclasses import dataclass
 
 from ortools.linear_solver import pywraplp
-from dataclasses import dataclass
 
 
 @dataclass
@@ -134,13 +134,14 @@ class PalletOptimizer:
                 pallet_details = {
                     'type': pallet.type,
                     'size': pallet.size,
+                    'length': pallet.length,
+                    'width': pallet.width,
                     'height': None,  # Will calculate later
                     'items': [],
                     'actual_volume': 0,
                     'total_weight': pallet.weight
                 }
 
-                total_volume = 0
                 for i, item in enumerate(self.items):
                     if self.item_pallet_vars[(i, j)].solution_value() > 0.5:
                         item_details = {
@@ -159,9 +160,9 @@ class PalletOptimizer:
 
                 # Calculate the height based on total volume and pallet dimensions
                 if pallet_details['actual_volume'] > 0:
-                    pallet_details['height'] = pallet_details['actual_volume'] / (pallet.length * pallet.width)
+                    pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width), 2)
 
                 results['total_pallets_used'] += 1
                 results['pallets'].append(pallet_details)
 
-        return results
+        return results['pallets']

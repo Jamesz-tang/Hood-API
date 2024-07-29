@@ -1,5 +1,6 @@
 import json
-from solver import Item, Pallet, PalletOptimizer
+
+from palletsolver import Item, Pallet, PalletOptimizer
 
 # Sample items with SKU
 items = [
