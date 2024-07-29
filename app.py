@@ -1,9 +1,10 @@
 import os
-
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from api.routes import api_blueprint
 
 app = Flask(__name__)
+
+app.register_blueprint(api_blueprint, url_prefix='/api')
 
 
 @app.errorhandler(404)
@@ -43,14 +44,6 @@ def ok():
 @app.route('/health', methods=['GET'])
 def get_health():
     return 'healthy'
-
-
-@app.route('/api/optimal_bin_packages', methods=['POST'])
-def optimal_bin_packages():
-    data = request.json
-    # Add your optimization logic here
-    return jsonify({"message": "Optimization logic to be implemented"})
-
 
 if __name__ == '__main__':
     app.run(debug=True)
