@@ -19,4 +19,4 @@ def get_items():
 @api_blueprint.route('/freight/pack', methods=['POST'])
 def pack():
     packages = freight.pack()
-    return jsonify(packages)
+    return jsonify({'status_code': 0, 'message': 'succeeded', 'data': packages})
