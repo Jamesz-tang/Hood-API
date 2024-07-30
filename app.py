@@ -5,8 +5,6 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-
-
 app.register_blueprint(api_blueprint, url_prefix='/api')
 
 
@@ -22,6 +20,7 @@ def not_found(e):
 def not_found(e):
     # defining function
     return 'Bad Request'
+
 
 @app.route('/', methods=['GET'])
 def ok():
