@@ -1,40 +1,40 @@
 from solvers.palletsolver import Item, Pallet, PalletOptimizer
 
 
-def pack(data):
-    items = _create_items(data)
-
+def pack(items):
+    items = _create_items(items)
     pallets = _create_pallets(items)
+
     optimizer = PalletOptimizer(items, pallets)
     result = optimizer.solve()
 
     return result
 
 
-def _create_items(data):
-    return [
-        Item(sku='ITEM001', weight=10, length=10, width=10, height=10, assembled=False, bundled=False),
-        Item(sku='ITEM004', weight=12, length=12, width=12, height=12, assembled=False, bundled=False),
-        Item(sku='ITEM007', weight=20, length=20, width=20, height=20, assembled=False, bundled=False),
-        Item(sku='ITEM010', weight=11, length=11, width=11, height=11, assembled=False, bundled=False),
-
-        Item(sku='ITEM002', weight=5, length=5, width=5, height=5, assembled=True, bundled=False),
-        Item(sku='ITEM005', weight=8, length=8, width=8, height=8, assembled=True, bundled=False),
-        Item(sku='ITEM008', weight=6, length=6, width=6, height=6, assembled=True, bundled=False),
-
-        Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
-        Item(sku='ITEM009', weight=9, length=96, width=10, height=6, assembled=False, bundled=True),
-    ]
+def _create_items(items):
+    return [Item(sku=x['sku'], weight=x['weight'], length=x['length'], width=x['width'],
+                 height=x['height'], assembled=x['assembled'], bundled=x['bundled'])
+            for x in items for _ in range(x['qty'])]
 
 
 def _create_pallets(items):
-    return [
-        Pallet(max_volume=5000, length=18, width=18, weight=50, type='PLT4', assembled=False, size=4),
-        Pallet(max_volume=9250, length=25, width=25, weight=60, type='PLT8', assembled=False, size=88),
+    return [_create_item_pallet(item) for item in items]
 
-        Pallet(max_volume=62500, length=25, width=25, weight=60, type='PLT8', assembled=True, size=8),
 
-        Pallet(max_volume=5760, length=96, width=10, weight=70, type='BD', assembled=False, size=6),
-        Pallet(max_volume=5760, length=96, width=10, weight=70, type='BD', assembled=False, size=6),
+def _create_item_pallet(item: Item):
+    # Bundle item
+    if item.bundled:
+        return Pallet(max_volume=9600, length=96, width=10, weight=2, type='BD', assembled=False, size=96)
 
-    ]
+    # assembled item
+    if item.assembled:
+        if item.length <= 55:
+            return Pallet(max_volume=144738, length=55, width=45, weight=55, type='PLT5', assembled=True, size=15)
+        else:
+            return Pallet(max_volume=131090, length=102, width=45, weight=80, type='PLT8', assembled=True, size=18)
+    # RTA item
+    if item.length <= 45:
+        return Pallet(max_volume=103275, length=45, width=45, weight=40, type='PLT4', assembled=False, size=4)
+    elif item.length <= 70:
+        return Pallet(max_volume=236275, length=70, width=45, weight=70, type='PLT6', assembled=False, size=6)
+    return Pallet(max_volume=176256, length=102, width=45, weight=80, type='PLT8', assembled=True, size=8)
