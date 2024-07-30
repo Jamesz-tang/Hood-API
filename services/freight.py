@@ -17,7 +17,6 @@ def _create_items(items):
             for x in items for _ in range(x['qty'])]
 
 
-
 def _create_pallets(items):
     return [_create_item_pallet(item) for item in items]
 
