@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import json
 import os
 import time
 
@@ -15,6 +16,141 @@ USER_POOL_ID = os.environ.get('USER_POOL_ID')
 APP_CLIENT_ID = os.environ.get('APP_CLIENT_ID')
 APP_CLIENT_SECRET = os.environ.get('APP_CLIENT_SECRET')  # Client secret if applicable
 REGION = os.environ.get('REGION', 'us-east-1')
+USERNAME = os.environ.get('USERNAME')
+
+
+def get_secret_name():
+    """
+    Get secret name from environment variables.
+    :return:
+    """
+    env = os.getenv('APP_ENV', 'development')
+    return f'/smart-packing/{env}/credentials'
+
+
+def store_or_update_secret(secret_name, secret_value):
+    """
+    Store or update the secret with the given value.
+    :param secret_name:
+    :param secret_value:
+    :return:
+    """
+    client = boto3.client('secretsmanager')
+    secret_value_json = json.dumps(secret_value)
+
+    try:
+        # Attempt to store the secret
+        response = client.create_secret(
+            Name=secret_name,
+            SecretString=secret_value_json
+        )
+        # print("Secret stored:", response)
+    except client.exceptions.ResourceExistsException:
+        # If the secret already exists, update it
+        response = client.put_secret_value(
+            SecretId=secret_name,
+            SecretString=secret_value_json
+        )
+        # print("Secret updated:", response)
+
+
+# # Example usage
+# secret_name = 'my_app/my_secret'
+# secret_value = {
+#     'access_token': 'your_access_token_value',
+#     'refresh_token': 'your_refresh_token_value',
+#     'id_token': 'your_id_token_value'
+# }
+# store_or_update_secret(secret_name, secret_value)
+
+
+# Function to update environment variable
+def update_env_var(variable_name, value):
+    os.environ[variable_name] = value
+
+
+# # Example usage
+# update_env_var('MY_SECRET_KEY', 'new_secret_value')
+
+def retrieve_secret(secret_name):
+    """
+    Retrieve secret value from secret manager.
+    :param secret_name:
+    :return:
+    """
+    client = boto3.client('secretsmanager')
+
+    response = client.get_secret_value(
+        SecretId=secret_name
+    )
+
+    # Retrieve and parse the JSON string
+    secret_value_json = response['SecretString']
+    secret_value = json.loads(secret_value_json)
+
+    return secret_value
+
+
+# # Example usage
+# secret_name = 'my_app/my_secret'
+# secret_value = retrieve_secret(secret_name)
+# print("Retrieved Secret:", secret_value)
+
+
+def get_local_tokens():
+    access_token = os.getenv('ACCESS_TOKEN')
+    refresh_token_value = os.getenv('REFRESH_TOKEN')
+    id_token = os.getenv('ID_TOKEN')
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token_value,
+        'id_token': id_token
+    }
+
+
+def get_tokens():
+    env = os.getenv('ENVIRONMENT', 'development')
+
+    if env == 'production' or env == 'staging':
+        # Retrieve tokens from AWS Secrets Manager
+        client = boto3.client('secretsmanager')
+        secret_name = 'my_app/cognito_tokens'
+
+        response = client.get_secret_value(SecretId=secret_name)
+        secret_value_json = response['SecretString']
+        secret_value = json.loads(secret_value_json)
+
+    else:
+        # Retrieve tokens from environment variables
+        secret_value = {
+            'access_token': os.getenv('ACCESS_TOKEN'),
+            'refresh_token': os.getenv('REFRESH_TOKEN'),
+            'id_token': os.getenv('ID_TOKEN')
+        }
+
+    return secret_value
+
+
+def store_tokens(secret_value):
+    env = os.getenv('ENVIRONMENT', 'development')
+
+    if env == 'production' or env == 'staging':
+        secret_name = 'my_app/cognito_tokens'
+        store_or_update_secret(secret_name, secret_value)
+
+    else:
+        update_env_var('ACCESS_TOKEN', secret_value['access_token'])
+        update_env_var('REFRESH_TOKEN', secret_value['refresh_token'])
+        update_env_var('ID_TOKEN', secret_value['id_token'])
+
+
+# # Example usage
+# tokens = get_tokens()
+# print("Tokens:", tokens)
+
+# # Example usage
+# local_tokens = get_local_tokens()
+# print("Local Tokens:", local_tokens)
 
 
 # Cognito JWT Token Verification
@@ -68,8 +204,33 @@ def authenticate():
     return payload, None
 
 
+def refresh_tokens(client_id, client_secret, refresh_token_value, region, user_pool_id):
+    url = f'https://bgiuserpoolstaging.auth.us-east-1.amazoncognito.com/oauth2/token'
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    data = {
+        'grant_type': 'refresh_token',
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'refresh_token': refresh_token_value
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+    if response.status_code == 200:
+        result = response.json()
+        return {
+            'access_token': result['access_token'],
+            'id_token': result['id_token'],
+            'expires_in': result['expires_in'],
+        }
+    else:
+        print("Error:", response.json())
+        return None
+
+
 # Refresh token if expired
-def refresh_token(refresh_token):
+def refresh_token(refresh_token_value):
     client = boto3.client('cognito-idp', region_name=REGION)
 
     try:
@@ -77,20 +238,38 @@ def refresh_token(refresh_token):
             ClientId=APP_CLIENT_ID,
             AuthFlow='REFRESH_TOKEN_AUTH',
             AuthParameters={
-                'REFRESH_TOKEN': refresh_token,
-                'SECRET_HASH': APP_CLIENT_SECRET  # Include if app client has a secret
+                'REFRESH_TOKEN': refresh_token_value,
+                'SECRET_HASH': compute_secret_hash(APP_CLIENT_ID, USERNAME, APP_CLIENT_SECRET)
+                # 'SECRET_HASH': APP_CLIENT_SECRET
             }
         )
         return {
             'access_token': response['AuthenticationResult']['AccessToken'],
             'id_token': response['AuthenticationResult']['IdToken'],
-            'refresh_token': response['AuthenticationResult']['RefreshToken'],
+            # 'refresh_token': response['AuthenticationResult']['RefreshToken'],
             'expires_in': response['AuthenticationResult']['ExpiresIn']
         }
     except client.exceptions.NotAuthorizedException:
+        print("Invalid refresh token provided. It may have expired or been revoked.")
         return None  # Invalid refresh token
+    except client.exceptions.ForbiddenException:
+        print("Forbidden: Check if the App client is enabled for refresh tokens.")
+        return None
+    except client.exceptions.InvalidParameterException as e:
+        # This exception can indicate that the parameters supplied were invalid
+        print(f"Invalid parameter: {e}")
+        return None
+    except client.exceptions.ResourceNotFoundException as e:
+        # This exception indicates that the resource (e.g., user pool) was not found
+        print(f"Resource not found: {e}")
+        return None
+    except client.exceptions.NotAuthorizedException as e:
+        # This exception occurs if the refresh token is invalid or expired
+        print(f"Not authorized: {e}")
+        return None
     except Exception as e:
-        print(f"Error refreshing token: {e}")
+        # Catch-all for other exceptions, log actual error message
+        print(f"An error occurred while refreshing the token: {e}")
         return None
 
 
@@ -126,8 +305,18 @@ def auth(f):
     return wrapper
 
 
-def authenticate_user(username, password, client_id, secret_hash):
+def compute_secret_hash(username, client_id, client_secret):
+    key = bytes(client_secret, 'utf-8')
+    message = bytes(f'{username}{client_id}', 'utf-8')
+    return base64.b64encode(hmac.new(key, message, digestmod=hashlib.sha256).digest()).decode()
+
+
+def authenticate_user(username, password, client_id, client_secret):
     client = boto3.client('cognito-idp')
+
+    secret_hash = compute_secret_hash(username, client_id, client_secret)
+
+    print(f'XXXXXsecret_hash: {secret_hash}')
 
     try:
         response = client.initiate_auth(
@@ -143,10 +332,3 @@ def authenticate_user(username, password, client_id, secret_hash):
     except ClientError as e:
         print(e)
         return None
-
-
-def compute_secret_hash(client_id, username, client_secret):
-    key = bytes(client_secret, 'utf-8')
-    message = bytes(f'{username}{client_id}', 'utf-8')
-    return base64.b64encode(hmac.new(key, message, digestmod=hashlib.sha256).digest()).decode()
-
