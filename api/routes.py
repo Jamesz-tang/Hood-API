@@ -1,8 +1,8 @@
-import os
-
 from flask import jsonify, request
+
 from middlewares import auth
 from services import freight
+from utils import secret
 from . import api_blueprint
 
 
@@ -25,16 +25,16 @@ def refresh_token_endpoint():
     data = request.get_json()
     refresh_token_value = data.get('refresh_token')
 
+    cred = secret.get_credentials()
+
     if not refresh_token_value:
         return jsonify({"message": "Refresh token is required"}), 400
 
-    USER_POOL_ID = os.environ.get('USER_POOL_ID')
-    APP_CLIENT_ID = os.environ.get('APP_CLIENT_ID')
-    APP_CLIENT_SECRET = os.environ.get('APP_CLIENT_SECRET')  # Client secret if applicable
-    REGION = os.environ.get('REGION', 'us-east-1')
-    USERNAME = os.environ.get('USERNAME')
-    new_tokens = auth.refresh_tokens(APP_CLIENT_ID, APP_CLIENT_SECRET, refresh_token_value, USERNAME, REGION)
-    # new_tokens = auth.refresh_token(refresh_token_value)
+    client_id = cred['client_id']
+    client_secret = cred['client_secret']
+    aws_region = cred['aws_region']
+    username = cred['username']
+    new_tokens = auth.refresh_tokens(client_id, client_secret, refresh_token_value, username, aws_region)
 
     if new_tokens:
         return jsonify(new_tokens), 200
