@@ -156,8 +156,12 @@ def store_credentials(secret_value):
 
 
 def create_boto_client(service_name: str):
-    key_id = os.getenv('AWS_ACCESS_KEY_ID')
-    print(f'XXXX AWS_ACCESS_KEY_ID: {key_id}')
+
+    # Print the current credentials to check validity
+    # session = boto3.Session()
+    # credentials = session.get_credentials()
+    # print("Access Key:", credentials.access_key)
+    # print("Secret Key:", credentials.secret_key)
     return boto3.client(
         service_name,
         aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),

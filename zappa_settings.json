@@ -2,21 +2,13 @@
     "staging": {
         "app_function": "app.app",
         "aws_region": "us-east-1",
-        "exclude": [
-            "boto3",
-            "dateutil",
-            "botocore",
-            "s3transfer",
-            "concurrent"
-        ],
         "profile_name": "default",
         "project_name": "smart-packing",
         "runtime": "python3.9",
         "s3_bucket": "zappa-pmeq1m3oc",
         "environment_variables": {
-            "APP_NAME": "Smart Packing"
-        },
-        "domain": "smart-packing-staging.bellflower.io",
-        "certificate_arn": "arn:aws:acm:us-east-1:907599752675:certificate/d052b2c5-db72-4d47-8b23-2c208d821e63"
+            "APP_NAME": "Smart Packing",
+            "APP_ENV": "staging"
+        }
     }
 }
