@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, request, jsonify
 from api.routes import api_blueprint
@@ -6,6 +7,27 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(api_blueprint, url_prefix='/api')
+
+
+def setup_logging():
+    log_level_str = str.upper(os.getenv('LOG_LEVEL', 'INFO'))
+    log_level = logging.INFO
+
+    if log_level_str == 'DEBUG':
+        log_level = logging.DEBUG
+    elif log_level_str == 'INFO':
+        log_level = logging.INFO
+    elif log_level_str == 'WARNING':
+        log_level = logging.WARNING
+    elif log_level_str == 'ERROR':
+        log_level = logging.ERROR
+
+    # Set up logging
+    logging.basicConfig(level=log_level, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+
+
+setup_logging()
+logger = logging.getLogger(__name__)
 
 
 @app.errorhandler(404)
@@ -25,7 +47,7 @@ def not_found(e):
 @app.route('/', methods=['GET'])
 def ok():
     app_name = os.getenv('APP_NAME')
-    app.logger.info('%s hit', app_name)
+    logger.info('%s hit', app_name)
 
     return 'Welcome to ' + app_name
 
@@ -36,4 +58,5 @@ def get_health():
 
 
 if __name__ == '__main__':
+    logger.info('Starting server ...')
     app.run(debug=True, port=8080, host='0.0.0.0')

@@ -15,7 +15,8 @@
         "s3_bucket": "zappa-pmeq1m3oc",
         "environment_variables": {
             "APP_NAME": "Smart Packing",
-            "APP_ENV": "staging"
+            "APP_ENV": "staging",
+            "LOG_LEVEL": "debug"
         }
     }
 }
