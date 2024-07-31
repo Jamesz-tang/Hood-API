@@ -2,7 +2,7 @@ import json
 import os
 
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
 
 
 # Function to get the secret name from the environment variables
@@ -142,16 +142,23 @@ def get_credentials():
             secret_value_json = response['SecretString']
             secret_value = json.loads(secret_value_json)
             return secret_value
-        except client.exceptions.ResourceNotFoundException:
-            print(f"XXXX The requested secret {secret_name} was not found")
-        except client.exceptions.InvalidRequestException as e:
-            print(f"XXXX The request was invalid due to: %s" % e)
-        except client.exceptions.InvalidParameterException as e:
-            print("XXXX The request had invalid params: %s" % e)
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            if error_code == 'ResourceNotFoundException':
+                print(f"The requested secret {secret_name} was not found")
+            elif error_code == 'InvalidRequestException':
+                print("The request was invalid due to: %s" % e)
+            elif error_code == 'InvalidParameterException':
+                print("The request had invalid params: %s" % e)
+            elif error_code == 'UnrecognizedClientException':
+                print("The security token included in the request is invalid.")
+            else:
+                print("Error retrieving secret: %s" % e)
+
         except (NoCredentialsError, PartialCredentialsError) as e:
-            print("XXXX Credentials not available: %s" % e)
+            print("Credentials not available: %s" % e)
         except Exception as e:
-            print("XXXX Error retrieving secret: %s" % e)
+            print("Error: %s" % e)
     else:
         # Retrieve tokens from environment variables
         secret_value = get_local_credentials()
