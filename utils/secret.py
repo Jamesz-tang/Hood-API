@@ -2,6 +2,7 @@ import json
 import os
 
 import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 
 
 # Function to get the secret name from the environment variables
@@ -132,15 +133,29 @@ def get_credentials():
         secret_name = get_secret_name()
         print(f'XXXXXX secret_name: {secret_name}')
 
-        response = client.get_secret_value(SecretId=secret_name)
-        secret_value_json = response['SecretString']
-        secret_value = json.loads(secret_value_json)
+        # response = client.get_secret_value(SecretId=secret_name)
+        # secret_value_json = response['SecretString']
+        # secret_value = json.loads(secret_value_json)
 
+        try:
+            response = client.get_secret_value(SecretId=secret_name)
+            secret_value_json = response['SecretString']
+            secret_value = json.loads(secret_value_json)
+            return secret_value
+        except client.exceptions.ResourceNotFoundException:
+            print(f"XXXX The requested secret {secret_name} was not found")
+        except client.exceptions.InvalidRequestException as e:
+            print(f"XXXX The request was invalid due to: %s" % e)
+        except client.exceptions.InvalidParameterException as e:
+            print("XXXX The request had invalid params: %s" % e)
+        except (NoCredentialsError, PartialCredentialsError) as e:
+            print("XXXX Credentials not available: %s" % e)
+        except Exception as e:
+            print("XXXX Error retrieving secret: %s" % e)
     else:
         # Retrieve tokens from environment variables
         secret_value = get_local_credentials()
-
-    return secret_value
+        return secret_value
 
 
 # Function to create or update credentials to secret manager or to environment variables depending on app environment.
