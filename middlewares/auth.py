@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import logging
 import time
 
 import boto3
@@ -10,6 +11,8 @@ from flask import request, jsonify
 from jose import jwt
 
 from utils import secret
+
+logger = logging.getLogger(__name__)
 
 
 # Cognito JWT Token Verification
@@ -40,7 +43,7 @@ def verify_jwt(token):
             payload = jwt.decode(token, rsa_key, algorithms=['RS256'], audience=client_id)
             return payload
     except Exception as e:
-        print(f"Token verification failed: {e}")
+        logger.error(f"Token verification failed: {e}")
         return None
 
 
@@ -51,7 +54,7 @@ def is_token_expired(token):
         exp = payload.get('exp')
         return time.time() > exp
     except Exception as e:
-        print(f"Error decoding token: {e}")
+        logger.error(f"Error decoding token: {e}")
         return True  # Assume expired on error
 
 
@@ -100,58 +103,10 @@ def refresh_tokens(client_id, client_secret, refresh_token_value, region, user_p
             'expires_in': result['expires_in'],
         }
     else:
-        print("Error:", response.json())
+        logger.error("Error:", response.json())
         return None
 
 
-# # Refresh token if expired
-# def refresh_token(refresh_token_value):
-#     client = boto3.client('cognito-idp', region_name=REGION)
-#     client_id = cred['client_id']
-#     username = cred['username']
-#     client_secret = cred['client_secret']
-#
-#     try:
-#         response = client.initiate_auth(
-#             ClientId=client_id,
-#             AuthFlow='REFRESH_TOKEN_AUTH',
-#             AuthParameters={
-#                 'REFRESH_TOKEN': refresh_token_value,
-#                 'SECRET_HASH': compute_secret_hash(client_id, username, client_secret)
-#                 # 'SECRET_HASH': APP_CLIENT_SECRET
-#             }
-#         )
-#         return {
-#             'access_token': response['AuthenticationResult']['AccessToken'],
-#             'id_token': response['AuthenticationResult']['IdToken'],
-#             # 'refresh_token': response['AuthenticationResult']['RefreshToken'],
-#             'expires_in': response['AuthenticationResult']['ExpiresIn']
-#         }
-#     except client.exceptions.NotAuthorizedException:
-#         print("Invalid refresh token provided. It may have expired or been revoked.")
-#         return None  # Invalid refresh token
-#     except client.exceptions.ForbiddenException:
-#         print("Forbidden: Check if the App client is enabled for refresh tokens.")
-#         return None
-#     except client.exceptions.InvalidParameterException as e:
-#         # This exception can indicate that the parameters supplied were invalid
-#         print(f"Invalid parameter: {e}")
-#         return None
-#     except client.exceptions.ResourceNotFoundException as e:
-#         # This exception indicates that the resource (e.g., user pool) was not found
-#         print(f"Resource not found: {e}")
-#         return None
-#     except client.exceptions.NotAuthorizedException as e:
-#         # This exception occurs if the refresh token is invalid or expired
-#         print(f"Not authorized: {e}")
-#         return None
-#     except Exception as e:
-#         # Catch-all for other exceptions, log actual error message
-#         print(f"An error occurred while refreshing the token: {e}")
-#         return None
-
-
-# Decorator for protecting routes
 def auth(f):
     def wrapper(*args, **kwargs):
         payload, expired_token = authenticate()
@@ -206,5 +161,5 @@ def authenticate_user(username, password, client_id, client_secret):
         )
         return response
     except ClientError as e:
-        print(e)
+        logger.error(e)
         return None

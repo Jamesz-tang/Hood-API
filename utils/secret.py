@@ -1,8 +1,11 @@
 import json
+import logging
 import os
 
 import boto3
 from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
+
+logger = logging.getLogger(__name__)
 
 
 # Function to get the secret name from the environment variables
@@ -131,11 +134,6 @@ def get_credentials():
         # Retrieve tokens from AWS Secrets Manager
         client = create_boto_client('secretsmanager')
         secret_name = get_secret_name()
-        print(f'XXXXXX secret_name: {secret_name}')
-
-        # response = client.get_secret_value(SecretId=secret_name)
-        # secret_value_json = response['SecretString']
-        # secret_value = json.loads(secret_value_json)
 
         try:
             response = client.get_secret_value(SecretId=secret_name)
@@ -145,20 +143,20 @@ def get_credentials():
         except ClientError as e:
             error_code = e.response['Error']['Code']
             if error_code == 'ResourceNotFoundException':
-                print(f"The requested secret {secret_name} was not found")
+                logger.error(f"The requested secret {secret_name} was not found")
             elif error_code == 'InvalidRequestException':
-                print("The request was invalid due to: %s" % e)
+                logger.error("The request was invalid due to: %s" % e)
             elif error_code == 'InvalidParameterException':
-                print("The request had invalid params: %s" % e)
+                logger.error("The request had invalid params: %s" % e)
             elif error_code == 'UnrecognizedClientException':
-                print("The security token included in the request is invalid.")
+                logger.error("The security token included in the request is invalid.")
             else:
-                print("Error retrieving secret: %s" % e)
+                logger.error("Error retrieving secret: %s" % e)
 
         except (NoCredentialsError, PartialCredentialsError) as e:
-            print("Credentials not available: %s" % e)
+            logger.error("Credentials not available: %s" % e)
         except Exception as e:
-            print("Error: %s" % e)
+            logger.error("Error: %s" % e)
     else:
         # Retrieve tokens from environment variables
         secret_value = get_local_credentials()
@@ -178,12 +176,6 @@ def store_credentials(secret_value):
 
 
 def create_boto_client(service_name: str):
-
-    # Print the current credentials to check validity
-    # session = boto3.Session()
-    # credentials = session.get_credentials()
-    # print("Access Key:", credentials.access_key)
-    # print("Secret Key:", credentials.secret_key)
     return boto3.client(
         service_name,
         aws_access_key_id=os.getenv('SECRETS_MANAGER_AWS_ACCESS_KEY_ID'),
