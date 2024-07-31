@@ -130,6 +130,7 @@ def get_credentials():
         # Retrieve tokens from AWS Secrets Manager
         client = create_boto_client('secretsmanager')
         secret_name = get_secret_name()
+        print(f'XXXXXX secret_name: {secret_name}')
 
         response = client.get_secret_value(SecretId=secret_name)
         secret_value_json = response['SecretString']
@@ -155,6 +156,8 @@ def store_credentials(secret_value):
 
 
 def create_boto_client(service_name: str):
+    key_id = os.getenv('AWS_ACCESS_KEY_ID')
+    print(f'XXXX AWS_ACCESS_KEY_ID: {key_id}')
     return boto3.client(
         service_name,
         aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
