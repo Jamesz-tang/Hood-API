@@ -37,7 +37,7 @@ def store_or_update_secret(secret_name, secret_value):
     :param secret_value:
     :return:
     """
-    client = boto3.client('secretsmanager')
+    client = create_boto_client('secretsmanager')
     secret_value_json = json.dumps(secret_value)
 
     try:
@@ -90,7 +90,7 @@ def retrieve_secret(secret_name):
     :param secret_name:
     :return:
     """
-    client = boto3.client('secretsmanager')
+    client = create_boto_client('secretsmanager')
 
     response = client.get_secret_value(
         SecretId=secret_name
@@ -128,8 +128,9 @@ def get_credentials():
     env = os.getenv('APP_ENV', 'development')
     if env == 'production' or env == 'staging':
         # Retrieve tokens from AWS Secrets Manager
-        client = boto3.client('secretsmanager')
+        client = create_boto_client('secretsmanager')
         secret_name = get_secret_name()
+        print(f'XXXXX-2 after create_boto_client secret name {secret_name}')
 
         response = client.get_secret_value(SecretId=secret_name)
         secret_value_json = response['SecretString']
@@ -152,3 +153,12 @@ def store_credentials(secret_value):
 
     else:
         update_local_credentials(secret_value)
+
+
+def create_boto_client(*args):
+    print('XXXXXX inside create_boto_client {args}')
+    return boto3.client(
+        args,
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.getenv('AWS_DEFAULT_REGION'))
