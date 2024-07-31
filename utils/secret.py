@@ -186,6 +186,6 @@ def create_boto_client(service_name: str):
     # print("Secret Key:", credentials.secret_key)
     return boto3.client(
         service_name,
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-        region_name=os.getenv('AWS_DEFAULT_REGION'))
+        aws_access_key_id=os.getenv('SECRETS_MANAGER_AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('SECRETS_MANAGER_AWS_SECRET_ACCESS_KEY'),
+        region_name=os.getenv('SECRETS_MANAGER_AWS_REGION'))
