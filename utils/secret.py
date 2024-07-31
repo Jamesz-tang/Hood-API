@@ -67,7 +67,7 @@ def update_env_var(variable_name, value):
     os.environ[variable_name] = value
 
 
-def update_local_credentials(secret_name, secret_value):
+def update_local_credentials(secret_value):
     update_env_var('USER_POOL_ID', secret_value['user_pool_id'])
     update_env_var('APP_CLIENT_ID', secret_value['client_id'])
     update_env_var('APP_CLIENT_SECRET', secret_value['client_secret'])

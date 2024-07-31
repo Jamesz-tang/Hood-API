@@ -71,11 +71,13 @@ def authenticate():
 
 def refresh_tokens(client_id, client_secret, refresh_token_value, region, user_pool_id):
     cred = secret.get_credentials()
+    cognito_domain = cred['cognito_domain']
 
-    url = f'https://bgiuserpoolstaging.auth.us-east-1.amazoncognito.com/oauth2/token'
+    url = f'{cognito_domain}/oauth2/token'
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
+
     data = {
         'grant_type': 'refresh_token',
         'client_id': client_id,
