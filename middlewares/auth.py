@@ -92,7 +92,7 @@ def refresh_tokens(client_id, client_secret, refresh_token_value, region, user_p
         cred['id_token'] = result['id_token']
 
         # Store credentials
-        secret.store_credentials(cred)
+        # secret.store_credentials(cred)
 
         return {
             'access_token': result['access_token'],
