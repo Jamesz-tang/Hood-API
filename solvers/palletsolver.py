@@ -137,9 +137,10 @@ class PalletOptimizer:
                     'length': pallet.length,
                     'width': pallet.width,
                     'height': None,  # Will calculate later
-                    'items': [],
                     'actual_volume': 0,
-                    'total_weight': pallet.weight
+                    'total_weight': round(pallet.weight, 1),
+                    'assembled': False,
+                    'items': []
                 }
 
                 for i, item in enumerate(self.items):
@@ -155,9 +156,9 @@ class PalletOptimizer:
                         }
                         pallet_details['items'].append(item_details)
                         volume = item.length * item.width * item.height
-                        pallet_details['actual_volume'] += volume
-                        pallet_details['total_weight'] += item.weight
-
+                        pallet_details['actual_volume'] += round(volume, 2)
+                        pallet_details['total_weight'] += round(item.weight, 1)
+                        pallet_details['assembled'] = item.assembled
                 # Calculate the height based on total volume and pallet dimensions
                 if pallet_details['actual_volume'] > 0:
                     pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width), 2)
