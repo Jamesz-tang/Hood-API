@@ -1,3 +1,5 @@
+import logging
+
 from flask import jsonify, request
 
 from middlewares import auth
@@ -5,6 +7,7 @@ from services import freight
 from utils import secret
 from . import api_blueprint
 
+logger = logging.getLogger(__name__)
 
 @api_blueprint.route('/hello', methods=['GET'])
 def hello():
@@ -16,6 +19,8 @@ def hello():
 def pack():
     items = request.get_json()
     pallets = freight.pack(items)
+
+    logger.debug('packing pallets', pallets)
     return jsonify({'status_code': 0, 'message': 'succeeded', 'data': pallets})
 
 
