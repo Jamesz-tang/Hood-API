@@ -31,6 +31,15 @@ class PalletOptimizer:
         self.items = items
         self.pallets = pallets
         self.solver = pywraplp.Solver.CreateSolver('SCIP')
+        self.palletWeightDict = {
+                'BD': 2,
+                'PLT4': 20,
+                'PLT5': 30,
+                'PLT6': 40,
+                'PLT7': 50,
+                'PLT8': 60,
+            }
+
 
     def create_variables(self):
         # Create binary decision variables for each item-pallet combination
@@ -124,6 +133,8 @@ class PalletOptimizer:
             return "No optimal solution found"
 
     def get_results(self):
+        palletHeight = 10
+
         results = {
             'total_pallets_used': 0,
             'pallets': []
@@ -138,7 +149,7 @@ class PalletOptimizer:
                     'width': pallet.width,
                     'height': None,  # Will calculate later
                     'actual_volume': 0,
-                    'weight': round(pallet.weight, 1),
+                    'weight': round(pallet.weight, 0),
                     'assembled': False,
                     'items': []
                 }
@@ -161,7 +172,10 @@ class PalletOptimizer:
                         pallet_details['assembled'] = item.assembled
                 # Calculate the height based on total volume and pallet dimensions
                 if pallet_details['actual_volume'] > 0:
-                    pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width), 2)
+                    pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width),
+                                                     2) + palletHeight
+
+                    pallet_details['height'] += self.palletWeightDict.get(pallet_details['type'], 10)
 
                 results['total_pallets_used'] += 1
                 results['pallets'].append(pallet_details)
