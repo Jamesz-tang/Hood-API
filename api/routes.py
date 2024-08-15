@@ -20,7 +20,7 @@ def pack():
     items = request.get_json()
     pallets = freight.pack(items)
 
-    logger.debug('packing pallets', pallets)
+    logger.debug('packing pallets: %s', pallets)
     return jsonify({'status_code': 0, 'message': 'succeeded', 'data': pallets})
 
 
