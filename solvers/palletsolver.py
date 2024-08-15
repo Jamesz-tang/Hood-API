@@ -1,11 +1,22 @@
 import math
 from dataclasses import dataclass
-
 from ortools.linear_solver import pywraplp
 
 
 @dataclass
 class Item:
+    """
+    Represents an item with its attributes for pallet optimization.
+
+    Attributes:
+        sku (str): Stock Keeping Unit identifier.
+        weight (float): Weight of the item.
+        length (float): Length of the item.
+        width (float): Width of the item.
+        height (float): Height of the item.
+        assembled (bool): Indicates if the item is assembled.
+        bundled (bool): Indicates if the item is bundled.
+    """
     sku: str
     weight: float
     length: float
@@ -17,6 +28,18 @@ class Item:
 
 @dataclass
 class Pallet:
+    """
+    Represents a pallet with its attributes for pallet optimization.
+
+    Attributes:
+        max_volume (float): Maximum volume capacity of the pallet.
+        length (float): Length of the pallet.
+        width (float): Width of the pallet.
+        weight (float): Weight of the pallet.
+        type (str): Type of the pallet (e.g., 'BD', 'PLT4', 'PLT6', 'PLT8').
+        assembled (bool): Indicates if the pallet is assembled.
+        size (int): Size identifier for the pallet.
+    """
     max_volume: float
     length: float
     width: float
@@ -27,58 +50,76 @@ class Pallet:
 
 
 class PalletOptimizer:
+    """
+    Optimizes the use of pallets to pack items efficiently using the OR-Tools linear solver.
+
+    Attributes:
+        items (list[Item]): List of items to be packed.
+        pallets (list[Pallet]): List of available pallets.
+        solver (pywraplp.Solver): OR-Tools solver instance.
+    """
+
     def __init__(self, items, pallets):
+        """
+        Initializes the optimizer with items and pallets.
+
+        Args:
+            items (list[Item]): List of items to be packed.
+            pallets (list[Pallet]): List of available pallets.
+        """
         self.items = items
         self.pallets = pallets
         self.solver = pywraplp.Solver.CreateSolver('SCIP')
-        self.palletWeightDict = {
-                'BD': 2,
-                'PLT4': 20,
-                'PLT5': 30,
-                'PLT6': 40,
-                'PLT7': 50,
-                'PLT8': 60,
-            }
-
 
     def create_variables(self):
-        # Create binary decision variables for each item-pallet combination
+        """
+        Creates decision variables for the optimization problem.
+
+        - Binary variables for each item-pallet combination.
+        - Binary variables indicating whether each pallet is used.
+        """
         self.item_pallet_vars = {}
         for i, item in enumerate(self.items):
             for j, pallet in enumerate(self.pallets):
                 self.item_pallet_vars[(i, j)] = self.solver.BoolVar(f'item_{i}_on_pallet_{j}')
 
-        # Create binary decision variables for each pallet being used
         self.pallet_used_vars = {}
         for j, pallet in enumerate(self.pallets):
             self.pallet_used_vars[j] = self.solver.BoolVar(f'pallet_{j}_used')
 
     def add_constraints(self):
-        # Each item must be assigned to exactly one pallet
+        """
+        Adds constraints to the optimization problem.
+
+        - Each item must be assigned to exactly one pallet.
+        - Item dimensions must fit within pallet dimensions.
+        - Assembled items can only be placed on assembled pallets.
+        - Bundled items can only be placed on bundle pallets.
+        - No mixed pallet types (assembled, bundled) in a single pallet.
+        - Volume capacity of each pallet must not be exceeded.
+        - If a pallet is used, it must contain at least one item.
+        - Assembled pallets can only hold assembled items.
+        """
         for i, item in enumerate(self.items):
             self.solver.Add(sum(self.item_pallet_vars[(i, j)] for j in range(len(self.pallets))) == 1)
 
-        # Constraint: item dimensions must fit within pallet dimensions
         for i, item in enumerate(self.items):
             for j, pallet in enumerate(self.pallets):
                 if item.length > pallet.length or item.width > pallet.width:
                     self.solver.Add(self.item_pallet_vars[(i, j)] == 0)
 
-        # Constraint: assembled items only on assembled pallets
         for i, item in enumerate(self.items):
             if item.assembled:
                 for j, pallet in enumerate(self.pallets):
                     if not pallet.assembled:
                         self.solver.Add(self.item_pallet_vars[(i, j)] == 0)
 
-        # Constraint: bundled items only on bundle pallets
         for i, item in enumerate(self.items):
             if item.bundled:
                 for j, pallet in enumerate(self.pallets):
                     if pallet.type != 'BD':
                         self.solver.Add(self.item_pallet_vars[(i, j)] == 0)
 
-        # Constraint: no mixed pallet types (assembled, bundled)
         for j, pallet in enumerate(self.pallets):
             if pallet.assembled:
                 self.solver.Add(sum(
@@ -89,19 +130,16 @@ class PalletOptimizer:
                     sum(self.item_pallet_vars[(i, j)] for i in range(len(self.items)) if self.items[i].bundled) == sum(
                         self.item_pallet_vars[(i, j)] for i in range(len(self.items)) if self.items[i].assembled) == 0)
 
-        # Constraint: volume capacity of each pallet
         for j, pallet in enumerate(self.pallets):
             self.solver.Add(sum(
                 self.item_pallet_vars[(i, j)] * (self.items[i].length * self.items[i].width * self.items[i].height)
                 for i in range(len(self.items))
             ) <= pallet.max_volume)
 
-        # Constraint: if a pallet is used, it must contain at least one item
         for j, pallet in enumerate(self.pallets):
             self.solver.Add(self.pallet_used_vars[j] * len(self.items) >= sum(
                 self.item_pallet_vars[(i, j)] for i in range(len(self.items))))
 
-        # Constraint: Assembled pallets can only hold assembled items
         for j, pallet in enumerate(self.pallets):
             if pallet.assembled:
                 for i, item in enumerate(self.items):
@@ -109,12 +147,15 @@ class PalletOptimizer:
                         self.solver.Add(self.item_pallet_vars[(i, j)] == 0)
 
     def set_objective(self):
-        # Objective: Minimize the number of pallets used and prefer smaller pallets
+        """
+        Sets the objective function for the optimization problem.
+
+        - Minimize the number of pallets used.
+        - Prefer smaller pallets by adding a penalty term proportional to the pallet size.
+        """
         objective = self.solver.Objective()
 
         for j, pallet in enumerate(self.pallets):
-            # Penalize larger pallets by adding a term proportional to the pallet size
-            # Smaller size has a lower penalty, hence preferred
             penalty = pallet.size
             objective.SetCoefficient(self.pallet_used_vars[j],
                                      1 + penalty / 1000.0)  # Adjust the penalty scale as needed
@@ -122,6 +163,12 @@ class PalletOptimizer:
         objective.SetMinimization()
 
     def solve(self):
+        """
+        Solves the optimization problem.
+
+        Returns:
+            dict: Results of the optimization including details of each pallet used, or a message indicating no optimal solution.
+        """
         self.create_variables()
         self.add_constraints()
         self.set_objective()
@@ -133,7 +180,13 @@ class PalletOptimizer:
             return "No optimal solution found"
 
     def get_results(self):
-        palletHeight = 10
+        """
+        Retrieves the results of the optimization.
+
+        Returns:
+            list[dict]: Details of each pallet used, including items and calculated height, or an empty list if no pallets are used.
+        """
+        pallet_height = 5.5
 
         results = {
             'total_pallets_used': 0,
@@ -147,9 +200,9 @@ class PalletOptimizer:
                     'size': pallet.size,
                     'length': pallet.length,
                     'width': pallet.width,
-                    'height': None,  # Will calculate later
+                    'height': pallet_height,  # Initialize the height with height of the pallet
                     'actual_volume': 0,
-                    'weight': round(pallet.weight, 0),
+                    'weight': round(pallet.weight, 1),  # Initialize the weight with weight of the pallet
                     'assembled': False,
                     'items': []
                 }
@@ -167,15 +220,12 @@ class PalletOptimizer:
                         }
                         pallet_details['items'].append(item_details)
                         volume = item.length * item.width * item.height
-                        pallet_details['actual_volume'] += round(volume, 2)
+                        pallet_details['actual_volume'] += round(volume, 1)
                         pallet_details['weight'] += round(item.weight, 1)
                         pallet_details['assembled'] = item.assembled
-                # Calculate the height based on total volume and pallet dimensions
                 if pallet_details['actual_volume'] > 0:
                     pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width),
-                                                     2) + palletHeight
-
-                    pallet_details['height'] += self.palletWeightDict.get(pallet_details['type'], 10)
+                                                     1)
 
                 results['total_pallets_used'] += 1
                 results['pallets'].append(pallet_details)
