@@ -187,6 +187,7 @@ class PalletOptimizer:
             list[dict]: Details of each pallet used, including items and calculated height, or an empty list if no pallets are used.
         """
         pallet_height = 5.5
+        mockup_height = 5  # minimum item height
 
         results = {
             'total_pallets_used': 0,
@@ -225,7 +226,7 @@ class PalletOptimizer:
                         pallet_details['assembled'] = item.assembled
                 if pallet_details['actual_volume'] > 0:
                     pallet_details['height'] = round(pallet_details['actual_volume'] / (pallet.length * pallet.width),
-                                                     1)
+                                                     1) + pallet_height + mockup_height
 
                 results['total_pallets_used'] += 1
                 results['pallets'].append(pallet_details)
