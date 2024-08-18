@@ -58,7 +58,7 @@ class EmpiricalSolver:
         assembled = contains_assembled_items(self.items)
         actual_volume = round(self.pallet_length * self.pallet_width * self.pallet_height, 1)
         total_cabinet_weight = total_weight_not_bundled(self.items)
-        pallet_count = total_cabinet_weight // self.pallet_max_weight
+        pallet_count = int(total_cabinet_weight) // int(self.pallet_max_weight)
 
         # Append pallet
         for i in range(pallet_count):
