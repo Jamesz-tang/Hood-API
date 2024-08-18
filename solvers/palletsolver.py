@@ -177,7 +177,7 @@ class PalletOptimizer:
         if status == pywraplp.Solver.OPTIMAL:
             return self.get_results()
         else:
-            return "No optimal solution found"
+            return []  # no optimal solution found
 
     def get_results(self):
         """
