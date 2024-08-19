@@ -1,22 +1,23 @@
 {
-    "staging": {
-        "app_function": "app.app",
-        "aws_region": "us-east-1",
-        "exclude": [
-            "boto3",
-            "dateutil",
-            "botocore",
-            "s3transfer",
-            "concurrent"
-        ],
-        "profile_name": "default",
-        "project_name": "smart-packing",
-        "runtime": "python3.9",
-        "s3_bucket": "zappa-pmeq1m3oc",
-        "environment_variables": {
-            "APP_NAME": "Smart Packing",
-            "APP_ENV": "staging",
-            "LOG_LEVEL": "debug"
-        }
+  "staging": {
+    "memory_size": 1024,
+    "app_function": "app.app",
+    "aws_region": "us-east-1",
+    "exclude": [
+      "boto3",
+      "dateutil",
+      "botocore",
+      "s3transfer",
+      "concurrent"
+    ],
+    "profile_name": "default",
+    "project_name": "smart-packing",
+    "runtime": "python3.9",
+    "s3_bucket": "zappa-pmeq1m3oc",
+    "environment_variables": {
+      "APP_NAME": "Smart Packing",
+      "APP_ENV": "staging",
+      "LOG_LEVEL": "debug"
     }
+  }
 }
